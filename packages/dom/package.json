@@ -1,0 +1,58 @@
+{
+  "name": "@aihu/dom",
+  "version": "0.1.0",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./hydrate": {
+      "types": "./dist/hydrate.d.ts",
+      "import": "./dist/hydrate.js"
+    },
+    "./progressive": {
+      "types": "./dist/progressive.d.ts",
+      "import": "./dist/progressive.js"
+    },
+    "./signals": {
+      "types": "./dist/signals.d.ts",
+      "import": "./dist/signals.js"
+    },
+    "./reactive": {
+      "types": "./dist/reactive.d.ts",
+      "import": "./dist/reactive.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "dependencies": {
+    "@aihu/arbor": "^4.1.2",
+    "@aihu/reactive": "^0.2.1",
+    "@aihu/signals": "^0.5.1"
+  },
+  "scripts": {
+    "build": "rolldown -c",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "bun run build"
+  },
+  "description": "Aihu's opt-in DOM rendering package, with focused Arbor, signals, and reactive subpaths.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aihu-project/aihu-dom.git",
+    "directory": "packages/dom"
+  },
+  "homepage": "https://github.com/aihu-project/aihu-dom#readme",
+  "bugs": "https://github.com/aihu-project/aihu-dom/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

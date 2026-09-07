@@ -18,25 +18,36 @@
     },
     "packages/arbor": {
       "name": "@aihu/arbor",
-      "version": "4.1.1",
+      "version": "4.1.2",
       "peerDependencies": {
-        "@aihu/signals": "workspace:^",
+        "@aihu/signals": "^0.5.1",
+      },
+    },
+    "packages/dom": {
+      "name": "@aihu/dom",
+      "version": "0.1.0",
+      "dependencies": {
+        "@aihu/arbor": "^4.1.2",
+        "@aihu/reactive": "^0.2.1",
+        "@aihu/signals": "^0.5.1",
       },
     },
     "packages/reactive": {
       "name": "@aihu/reactive",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "dependencies": {
-        "@aihu/signals": "workspace:*",
+        "@aihu/signals": "^0.5.1",
       },
     },
     "packages/signals": {
       "name": "@aihu/signals",
-      "version": "0.5.0",
+      "version": "0.5.1",
     },
   },
   "packages": {
     "@aihu/arbor": ["@aihu/arbor@workspace:packages/arbor"],
+
+    "@aihu/dom": ["@aihu/dom@workspace:packages/dom"],
 
     "@aihu/reactive": ["@aihu/reactive@workspace:packages/reactive"],
 
