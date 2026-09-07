@@ -3,3 +3,5 @@ dist/
 coverage/
 *.tsbuildinfo
 .env
+.codemap/*
+!.codemap/config.json
