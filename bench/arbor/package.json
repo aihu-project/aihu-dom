@@ -1,0 +1,32 @@
+{
+  "name": "@aihu/bench-arbor",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bench harness comparing @aihu/arbor against SOTA DOM-binding libs (Round N+1, Track A).",
+  "scripts": {
+    "run": "tsx src/runner.ts",
+    "counts": "tsx src/counts.ts",
+    "memory": "node --expose-gc --import tsx src/memory.ts",
+    "size": "tsx src/size.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aihu/arbor": "^4.1.1",
+    "@aihu/signals": "^0.5.0",
+    "@vue/runtime-dom": "3.5.33",
+    "htm": "3.1.1",
+    "lit-html": "3.2.1",
+    "mitata": "1.0.34",
+    "preact": "10.25.4",
+    "solid-js": "1.9.12"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^21.1.7",
+    "@types/node": "^20.16.5",
+    "esbuild": "^0.24.0",
+    "jsdom": "^25.0.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.6.2"
+  }
+}
