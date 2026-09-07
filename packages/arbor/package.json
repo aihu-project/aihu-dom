@@ -32,7 +32,7 @@
     "prepublishOnly": "bun run build"
   },
   "peerDependencies": {
-    "@aihu/signals": "workspace:^"
+    "@aihu/signals": "^0.5.1"
   },
   "description": "Reactive component tree (the rendering layer that consumes @aihu/signals).",
   "repository": {

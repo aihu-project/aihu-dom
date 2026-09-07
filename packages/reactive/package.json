@@ -23,7 +23,7 @@
   ],
   "sideEffects": false,
   "dependencies": {
-    "@aihu/signals": "workspace:*"
+    "@aihu/signals": "^0.5.1"
   },
   "scripts": {
     "build": "rm -rf dist && rolldown -c",
