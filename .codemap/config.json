@@ -1,0 +1,11 @@
+{
+  "only": ["ts", "mjs", "js", "json", "yml", "yaml", "md"],
+  "exclude": ["node_modules", "coverage", "dist"],
+  "depth": 5,
+  "budgets": {},
+  "routing": {
+    "retrieval": {}
+  },
+  "drift": {},
+  "guidance": {}
+}
