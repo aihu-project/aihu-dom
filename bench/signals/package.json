@@ -1,0 +1,29 @@
+{
+  "name": "@aihu/bench-signals",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bench harness comparing @aihu/signals against SOTA reactivity libs (Phase 2.5).",
+  "scripts": {
+    "run": "tsx src/runner.ts",
+    "memory": "node --expose-gc --import tsx src/memory.ts",
+    "size": "tsx src/size.ts",
+    "typecheck": "tsc --noEmit",
+    "counts": "tsx src/counts.ts"
+  },
+  "dependencies": {
+    "@aihu/signals": "^0.5.0",
+    "@preact/signals-core": "1.14.1",
+    "@vue/reactivity": "3.5.33",
+    "alien-signals": "3.1.2",
+    "mitata": "1.0.34",
+    "s-js": "0.4.9",
+    "solid-js": "1.9.12"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.5",
+    "esbuild": "^0.24.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.6.2"
+  }
+}

@@ -1,0 +1,36 @@
+name: DOM benchmark
+
+# Benchmarks stay available for a deliberate performance investigation, but do
+# not run on every application or documentation change.
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Benchmark suite to run
+        required: true
+        type: choice
+        default: arbor
+        options: [signals, arbor]
+
+permissions:
+  contents: read
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.8
+      - run: bun install --frozen-lockfile
+      - name: Install published benchmark dependencies
+        working-directory: bench/${{ inputs.suite }}
+        run: npm ci --ignore-scripts
+      - name: Check deterministic metrics
+        working-directory: bench/${{ inputs.suite }}
+        run: bun run counts
+      - name: Run timing benchmark
+        working-directory: bench/${{ inputs.suite }}
+        run: bun run run

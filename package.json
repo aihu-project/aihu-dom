@@ -17,7 +17,8 @@
     "test": "vitest run",
     "typecheck": "bun run --filter '*' typecheck",
     "lint": "biome ci .",
-    "check": "bun run lint && bun run typecheck && bun run build && bun run test"
+    "check": "bun run lint && bun run typecheck && bun run build && bun run test",
+    "check:artifact": "node scripts/smoke-packed-artifacts.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.14",
