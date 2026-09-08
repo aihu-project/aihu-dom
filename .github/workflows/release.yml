@@ -55,6 +55,7 @@ jobs:
         run: npm install --global npm@11.5.1 --ignore-scripts
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run test:release-contract
+      - run: node scripts/assert-version-set.mjs
       - name: Validate exact package tag, version, and commit
         env:
           RELEASE_TAG: ${{ github.ref_name }}
@@ -76,13 +77,16 @@ jobs:
           echo "AIHU_PACKAGE_DIR=$package_dir" >> "$GITHUB_ENV"
       - name: Build and test package
         run: |
-          bun run --filter "@aihu/$AIHU_PACKAGE_DIR" build
-          bun run --filter "@aihu/$AIHU_PACKAGE_DIR" typecheck
+          bun run --filter '*' build
+          bun run typecheck
           bun run test
       - name: Reject classic npm authentication
         run: node scripts/check-oidc-auth.mjs
+      - run: node scripts/all-package-artifacts.mjs
       - name: Confirm registry returns E404 only
         run: node scripts/assert-unpublished.mjs "$AIHU_PACKAGE_DIR"
+      - name: Enforce dependency publication order
+        run: node scripts/verify-release-dependencies.mjs "$AIHU_PACKAGE_DIR"
       - name: Capture and validate one exact tarball
         env:
           PACK_DIR: ${{ runner.temp }}/aihu-dom-pack

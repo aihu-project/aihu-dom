@@ -25,6 +25,9 @@ for (const marker of [
   'consumer-smoke.mjs',
   'assert-unpublished.mjs',
   'assert-reviewed-release.mjs',
+  'assert-version-set.mjs',
+  'verify-release-dependencies.mjs',
+  'all-package-artifacts.mjs',
   '--provenance',
 ])
   if (!workflow.includes(marker)) throw new Error(`release workflow omits ${marker}`)

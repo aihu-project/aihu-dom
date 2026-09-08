@@ -127,7 +127,7 @@ npm install @aihu/arbor
 bun add @aihu/arbor
 ```
 
-<sub><i>Auto-generated against `@aihu/arbor@4.1.1`.</i></sub>
+<sub><i>Auto-generated against `@aihu/arbor@4.1.3`.</i></sub>
 
 <!-- END_AUTOGEN: install -->
 
@@ -138,13 +138,13 @@ bun add @aihu/arbor
 
 | | |
 |---|---|
-| **Version** | `4.1.1` |
+| **Version** | `4.1.3` |
 | **Tier** | A — Reactive runtime core — DOM materialization layer |
 | **Bundle size** | 3.10 kB (gz) — limit 3200 B |
 | **Published files** | 3 entries |
 | **License** | MIT |
 
-<sub><i>Auto-generated against `@aihu/arbor@4.1.1`.</i></sub>
+<sub><i>Auto-generated against `@aihu/arbor@4.1.3`.</i></sub>
 
 <!-- END_AUTOGEN: stats -->
 
@@ -159,7 +159,7 @@ bun add @aihu/arbor
 | `./hydrate` | `./dist/hydrate.js` | `—` |
 | `./progressive` | `./dist/progressive.js` | `—` |
 
-<sub><i>Auto-generated against `@aihu/arbor@4.1.1`.</i></sub>
+<sub><i>Auto-generated against `@aihu/arbor@4.1.3`.</i></sub>
 
 <!-- END_AUTOGEN: exports -->
 
@@ -170,9 +170,9 @@ bun add @aihu/arbor
 
 **Peer dependencies:**
 
-- `@aihu/signals` — `workspace:^`
+- `@aihu/signals` — `^0.5.2`
 
-<sub><i>Auto-generated against `@aihu/arbor@4.1.1`.</i></sub>
+<sub><i>Auto-generated against `@aihu/arbor@4.1.3`.</i></sub>
 
 <!-- END_AUTOGEN: deps -->
 
@@ -187,7 +187,7 @@ bun add @aihu/arbor
 - [@aihu/runtime](../runtime)
 - [Aihu framework root](../../README.md)
 
-<sub><i>Auto-generated against `@aihu/arbor@4.1.1`.</i></sub>
+<sub><i>Auto-generated against `@aihu/arbor@4.1.3`.</i></sub>
 
 <!-- END_AUTOGEN: see-also -->
 
@@ -198,6 +198,6 @@ bun add @aihu/arbor
 
 MIT — see [LICENSE](../../LICENSE).
 
-<sub><i>Auto-generated against `@aihu/arbor@4.1.1`.</i></sub>
+<sub><i>Auto-generated against `@aihu/arbor@4.1.3`.</i></sub>
 
 <!-- END_AUTOGEN: license -->
