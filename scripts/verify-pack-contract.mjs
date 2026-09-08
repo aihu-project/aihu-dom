@@ -1,14 +1,6 @@
 import { execFileSync } from 'node:child_process'
-import {
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  rmSync,
-  statSync,
-  writeFileSync,
-} from 'node:fs'
-import { join, resolve } from 'node:path'
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { basename, join, resolve } from 'node:path'
 
 const manifestFields = [
   'name',
@@ -26,25 +18,74 @@ const manifestFields = [
   'libc',
 ]
 
-function collect(root, relativePath, expected) {
-  const absolute = join(root, relativePath)
-  if (!existsSync(absolute)) throw new Error(`declared package path is missing: ${relativePath}`)
-  if (statSync(absolute).isFile()) {
-    expected.add(`package/${relativePath.replaceAll('\\\\', '/')}`)
-    return
-  }
-  for (const entry of readdirSync(absolute)) collect(root, join(relativePath, entry), expected)
-}
-
-function exportTargets(value, targets) {
-  if (typeof value === 'string') {
-    if (!value.includes('*')) targets.add(value.replace(/^\.\//, ''))
-    return
-  }
-  if (Array.isArray(value)) for (const item of value) exportTargets(item, targets)
-  else if (value && typeof value === 'object')
-    for (const item of Object.values(value)) exportTargets(item, targets)
-}
+// This is deliberately independent of package.json `files`, exports, and the
+// current dist tree. A new file requires an intentional release-contract edit;
+// injected nested or top-level files must never become publishable by walking
+// whatever happens to be present in dist at verification time.
+const exactPackageFiles = Object.freeze({
+  signals: [
+    'package/LICENSE',
+    'package/README.md',
+    'package/package.json',
+    'package/dist/index.d.ts',
+    'package/dist/index.d.ts.map',
+    'package/dist/index.js',
+    'package/dist/index.js.map',
+    'package/dist/lifecycle.d.ts',
+    'package/dist/lifecycle.d.ts.map',
+    'package/dist/lifecycle.js',
+    'package/dist/lifecycle.js.map',
+  ],
+  reactive: [
+    'package/LICENSE',
+    'package/README.md',
+    'package/package.json',
+    'package/dist/helpers.d.ts',
+    'package/dist/helpers.d.ts.map',
+    'package/dist/helpers.js',
+    'package/dist/helpers.js.map',
+    'package/dist/index.d.ts',
+    'package/dist/index.d.ts.map',
+    'package/dist/index.js',
+    'package/dist/index.js.map',
+  ],
+  arbor: [
+    'package/LICENSE',
+    'package/README.md',
+    'package/package.json',
+    'package/dist/hydrate.d.ts',
+    'package/dist/hydrate.d.ts.map',
+    'package/dist/hydrate.js',
+    'package/dist/hydrate.js.map',
+    'package/dist/index.d.ts',
+    'package/dist/index.d.ts.map',
+    'package/dist/index.js',
+    'package/dist/index.js.map',
+    'package/dist/mount-AlTgh9U9.js',
+    'package/dist/mount-AlTgh9U9.js.map',
+    'package/dist/mount-D3aTHMPy.d.ts',
+    'package/dist/mount-D3aTHMPy.d.ts.map',
+    'package/dist/progressive.d.ts',
+    'package/dist/progressive.d.ts.map',
+    'package/dist/progressive.js',
+    'package/dist/progressive.js.map',
+  ],
+  dom: [
+    'package/LICENSE',
+    'package/README.md',
+    'package/package.json',
+    'package/dist/hydrate.d.ts',
+    'package/dist/hydrate.js',
+    'package/dist/index.d.ts',
+    'package/dist/index.js',
+    'package/dist/progressive.d.ts',
+    'package/dist/progressive.js',
+    'package/dist/reactive.d.ts',
+    'package/dist/reactive.js',
+    'package/dist/signals.d.ts',
+    'package/dist/signals.js',
+  ],
+})
 
 const number = '(?:0|[1-9]\\d*)'
 const fullVersion = `${number}\\.${number}\\.${number}(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?`
@@ -106,23 +147,10 @@ export function verifyPackage(root, packDir) {
     .trim()
     .split('\n')
     .filter((entry) => entry && !entry.endsWith('/'))
-  const expected = new Set(['package/package.json'])
-  for (const file of ['README.md', 'LICENSE'])
-    if (existsSync(join(root, file))) expected.add(`package/${file}`)
-  for (const file of source.files ?? []) collect(root, file, expected)
-  for (const target of [source.main, source.module, source.types].filter(
-    (x) => typeof x === 'string',
-  ))
-    collect(root, target.replace(/^\.\//, ''), expected)
-  const targets = new Set()
-  exportTargets(source.exports, targets)
-  if (source.bin && typeof source.bin === 'object')
-    for (const target of Object.values(source.bin))
-      if (typeof target === 'string') targets.add(target)
-  for (const target of targets) {
-    const clean = target.replace(/^\.\//, '')
-    if (!clean.includes('*')) collect(root, clean, expected)
-  }
+  const packageDirectory = basename(root)
+  const expectedFiles = exactPackageFiles[packageDirectory]
+  if (!expectedFiles) throw new Error(`no exact pack allowlist for ${packageDirectory}`)
+  const expected = new Set(expectedFiles)
   const actual = new Set(entries)
   for (const file of expected)
     if (!actual.has(file)) throw new Error(`tarball is missing allowlisted file ${file}`)
