@@ -1,8 +1,13 @@
 name: Publish DOM package
 
 on:
-  push:
-    tags: ['signals-v*.*.*', 'reactive-v*.*.*', 'arbor-v*.*.*', 'dom-v*.*.*']
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Package to validate for a future versioned release
+        required: true
+        type: choice
+        options: [signals, reactive, arbor, dom]
 
 permissions:
   contents: read
@@ -15,6 +20,7 @@ concurrency:
 env:
   NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
   NPM_CONFIG_USERCONFIG: /tmp/aihu-dom-npmrc-oidc-only
+  DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
 
 jobs:
   publish:
@@ -31,22 +37,29 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22.14.0
+      - name: Bind release to merged default branch
+        env:
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "$DEFAULT_BRANCH" --depth=1
+          git merge-base --is-ancestor "$RELEASE_SHA" FETCH_HEAD
       - name: Prepare OIDC-only npm config
         run: printf '%s\n' 'registry=https://registry.npmjs.org/' > "$NPM_CONFIG_USERCONFIG"
       - name: Pin npm for trusted publishing
         run: npm install --global npm@11.5.1 --ignore-scripts
-      - run: bun install --frozen-lockfile
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: bun run test:release-contract
       - name: Validate exact package tag and commit
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_PACKAGE: ${{ inputs.package }}
           RELEASE_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          package_dir="${RELEASE_TAG%-v*}"
+          package_dir="$RELEASE_PACKAGE"
           case "$package_dir" in signals|reactive|arbor|dom) ;; *) echo 'unsupported release tag'; exit 1 ;; esac
-          version="$(node -p "require('./packages/$package_dir/package.json').version")"
-          test "$RELEASE_TAG" = "$package_dir-v$version"
-          test "$(git rev-parse "$RELEASE_TAG^{commit}")" = "$RELEASE_SHA"
+          git fetch --no-tags origin "$DEFAULT_BRANCH" --depth=1
+          git merge-base --is-ancestor "$RELEASE_SHA" FETCH_HEAD
           echo "AIHU_PACKAGE_DIR=$package_dir" >> "$GITHUB_ENV"
       - name: Build and test package
         run: |
