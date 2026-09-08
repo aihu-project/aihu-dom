@@ -1,0 +1,67 @@
+name: Publish DOM package
+
+on:
+  push:
+    tags: ['signals-v*.*.*', 'reactive-v*.*.*', 'arbor-v*.*.*', 'dom-v*.*.*']
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
+  NPM_CONFIG_USERCONFIG: /tmp/aihu-dom-npmrc-oidc-only
+
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.3.8
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22.14.0
+      - name: Prepare OIDC-only npm config
+        run: printf '%s\n' 'registry=https://registry.npmjs.org/' > "$NPM_CONFIG_USERCONFIG"
+      - name: Pin npm for trusted publishing
+        run: npm install --global npm@11.5.1 --ignore-scripts
+      - run: bun install --frozen-lockfile
+      - name: Validate exact package tag and commit
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          package_dir="${RELEASE_TAG%-v*}"
+          case "$package_dir" in signals|reactive|arbor|dom) ;; *) echo 'unsupported release tag'; exit 1 ;; esac
+          version="$(node -p "require('./packages/$package_dir/package.json').version")"
+          test "$RELEASE_TAG" = "$package_dir-v$version"
+          test "$(git rev-parse "$RELEASE_TAG^{commit}")" = "$RELEASE_SHA"
+          echo "AIHU_PACKAGE_DIR=$package_dir" >> "$GITHUB_ENV"
+      - name: Build and test package
+        run: |
+          bun run --filter "@aihu/$AIHU_PACKAGE_DIR" build
+          bun run --filter "@aihu/$AIHU_PACKAGE_DIR" typecheck
+          bun run test
+      - name: Reject classic npm authentication
+        run: node scripts/check-oidc-auth.mjs
+      - name: Confirm registry returns E404 only
+        run: node scripts/assert-unpublished.mjs "$AIHU_PACKAGE_DIR"
+      - name: Capture and validate one exact tarball
+        env:
+          PACK_DIR: ${{ runner.temp }}/aihu-dom-pack
+        run: node scripts/verify-pack.mjs "$AIHU_PACKAGE_DIR"
+      - name: Validate isolated consumer
+        run: node scripts/consumer-smoke.mjs "$AIHU_PACK_PATH" "$AIHU_PACKAGE_DIR"
+      - name: Publish exact validated tarball with OIDC provenance
+        run: npm publish "$AIHU_PACK_PATH" --access public --provenance --registry "$NPM_CONFIG_REGISTRY"
