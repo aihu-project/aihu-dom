@@ -1,13 +1,12 @@
 name: Publish DOM package
 
 on:
-  workflow_dispatch:
-    inputs:
-      package:
-        description: Package to validate for a future versioned release
-        required: true
-        type: choice
-        options: [signals, reactive, arbor, dom]
+  push:
+    tags:
+      - 'signals-v*'
+      - 'reactive-v*'
+      - 'arbor-v*'
+      - 'dom-v*'
 
 permissions:
   contents: read
@@ -42,23 +41,36 @@ jobs:
           RELEASE_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          git fetch --no-tags origin "$DEFAULT_BRANCH" --depth=1
+          git fetch --no-tags origin "$DEFAULT_BRANCH"
           git merge-base --is-ancestor "$RELEASE_SHA" FETCH_HEAD
+      - name: Verify reviewed merged release commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: node scripts/assert-reviewed-release.mjs
       - name: Prepare OIDC-only npm config
         run: printf '%s\n' 'registry=https://registry.npmjs.org/' > "$NPM_CONFIG_USERCONFIG"
       - name: Pin npm for trusted publishing
         run: npm install --global npm@11.5.1 --ignore-scripts
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bun run test:release-contract
-      - name: Validate exact package tag and commit
+      - name: Validate exact package tag, version, and commit
         env:
-          RELEASE_PACKAGE: ${{ inputs.package }}
+          RELEASE_TAG: ${{ github.ref_name }}
           RELEASE_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          package_dir="$RELEASE_PACKAGE"
-          case "$package_dir" in signals|reactive|arbor|dom) ;; *) echo 'unsupported release tag'; exit 1 ;; esac
-          git fetch --no-tags origin "$DEFAULT_BRANCH" --depth=1
+          case "$RELEASE_TAG" in
+            signals-v*) package_dir=signals; expected_version="${RELEASE_TAG#signals-v}" ;;
+            reactive-v*) package_dir=reactive; expected_version="${RELEASE_TAG#reactive-v}" ;;
+            arbor-v*) package_dir=arbor; expected_version="${RELEASE_TAG#arbor-v}" ;;
+            dom-v*) package_dir=dom; expected_version="${RELEASE_TAG#dom-v}" ;;
+            *) echo 'unsupported release tag'; exit 1 ;;
+          esac
+          actual_version=$(node -p "require('./packages/$package_dir/package.json').version")
+          test "$expected_version" = "$actual_version"
+          test "$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")" = "$RELEASE_SHA"
+          git fetch --no-tags origin "$DEFAULT_BRANCH"
           git merge-base --is-ancestor "$RELEASE_SHA" FETCH_HEAD
           echo "AIHU_PACKAGE_DIR=$package_dir" >> "$GITHUB_ENV"
       - name: Build and test package
