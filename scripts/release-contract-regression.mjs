@@ -15,9 +15,13 @@ if (!workflow.includes('--ignore-scripts'))
 for (const marker of [
   'NPM_CONFIG_USERCONFIG',
   'NPM_CONFIG_GLOBALCONFIG',
-  '_authToken',
-  '_auth',
-  '_password',
+  'credentialName',
+  'username',
+  'password',
+  'email',
+  'cert',
+  'key',
+  'isSupportedNpmVersion',
 ])
   if (!auth.includes(marker)) throw new Error(`OIDC guard omits ${marker}`)
 for (const marker of [
@@ -28,9 +32,14 @@ for (const marker of [
   'assert-version-set.mjs',
   'verify-release-dependencies.mjs',
   'all-package-artifacts.mjs',
+  'pack-contract-regression.mjs',
+  'oidc-auth-regression.mjs',
   '--provenance',
 ])
   if (!workflow.includes(marker)) throw new Error(`release workflow omits ${marker}`)
+for (const marker of ['exactPackageFiles', 'signals:', 'reactive:', 'arbor:', 'dom:'])
+  if (!pack.includes(marker))
+    throw new Error(`pack contract omits fixed allowlist marker ${marker}`)
 for (const marker of ['github.sha', 'merge-base --is-ancestor'])
   if (!workflow.includes(marker))
     throw new Error(`release workflow omits exact tag binding marker ${marker}`)

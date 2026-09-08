@@ -82,6 +82,8 @@ jobs:
           bun run test
       - name: Reject classic npm authentication
         run: node scripts/check-oidc-auth.mjs
+      - run: node scripts/oidc-auth-regression.mjs
+      - run: node scripts/pack-contract-regression.mjs
       - run: node scripts/all-package-artifacts.mjs
       - name: Confirm registry returns E404 only
         run: node scripts/assert-unpublished.mjs "$AIHU_PACKAGE_DIR"
