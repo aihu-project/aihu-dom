@@ -29,7 +29,7 @@
  */
 
 import { type Dispose, runWithoutScope, type Signal } from '@aihu/signals'
-import { _applyAttrs } from './attrs.ts'
+import { _applyAttrs, _resyncSelectValue } from './attrs.ts'
 import { _materialize } from './materialize.ts'
 import { _makeScope, _mountDisposersStack, _mountEffect, type mount } from './mount.ts'
 import { _wireStructural } from './structural.ts'
@@ -533,6 +533,8 @@ function _hydrateNode(
       null,
     )
   }
+  // Attrs were wired before the options were adopted; select the bound option (#8).
+  _resyncSelectValue(existingEl)
 }
 
 /**

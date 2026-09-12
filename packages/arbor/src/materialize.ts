@@ -1,5 +1,5 @@
 import type { Dispose } from '@aihu/signals'
-import { _applyAttrs, type MountEffectFn, SVG_NS } from './attrs.ts'
+import { _applyAttrs, _resyncSelectValue, type MountEffectFn, SVG_NS } from './attrs.ts'
 import { _materializeStructural } from './structural.ts'
 import type { ErrorHandler, Node } from './types.ts'
 
@@ -185,6 +185,8 @@ export function _materialize(
       )
     }
   }
+  // Attrs ran before the options existed; select the bound option now (#8).
+  if (tag === 'select') _resyncSelectValue(el)
   host.appendChild(el)
   return [el]
 }

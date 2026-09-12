@@ -1,5 +1,16 @@
-import type { Dispose } from '@aihu/signals'
+import { type Dispose, untrack } from '@aihu/signals'
 import type { AttrMap, ErrorHandler, EventHandler } from './types.ts'
+
+/**
+ * Getters of reactive `value` bindings on single-select `<select>` elements.
+ * `select.value = x` only selects an option that already exists, so a value
+ * applied before the options (mount order: attrs, then children) or before a
+ * reconcile replaces them is lost while the signal still holds it — and a later
+ * write of the same value is dropped by the signal's equality check.
+ * `_resyncSelectValue` re-applies the bound value after options change
+ * (aihu-dom#8).
+ */
+const _selectValueGetters = new WeakMap<Element, () => unknown>()
 
 export const SVG_NS = 'http://www.w3.org/2000/svg'
 
@@ -130,6 +141,9 @@ export function _applyAttrs(
       // determined by the element's prototype and namespace, which never
       // change. The effect body then does a bare assignment per update
       // instead of re-running the `namespaceURI` + `key in el` checks.
+      if (key === 'value' && el.tagName === 'SELECT' && !(el as HTMLSelectElement).multiple) {
+        _selectValueGetters.set(el, get)
+      }
       const asProp = el.namespaceURI !== SVG_NS && key in el
       mountEffect(
         disposers,
@@ -170,4 +184,21 @@ export function _setAttrOrProp(el: Element, key: string, value: unknown): void {
   } else {
     el.setAttribute(key, String(value))
   }
+}
+
+/**
+ * Re-apply a `<select>`'s bound `value` after its options were created,
+ * replaced or removed. `node` is the select itself or the parent a structural
+ * reconcile just mutated (an `<optgroup>` resolves to its select). Untracked,
+ * so a calling reconcile effect never subscribes to the value signal. No-op
+ * for anything that is not a bound single select.
+ *
+ * @internal
+ */
+export function _resyncSelectValue(node: Element | ShadowRoot | null): void {
+  let el = node as Element | null
+  if (el?.tagName === 'OPTGROUP') el = el.parentElement
+  if (el?.tagName !== 'SELECT') return
+  const get = _selectValueGetters.get(el)
+  if (get) (el as unknown as Record<string, unknown>).value = untrack(get)
 }
