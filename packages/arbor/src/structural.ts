@@ -1,5 +1,5 @@
 import type { Dispose, Signal } from '@aihu/signals'
-import type { MountEffectFn } from './attrs.ts'
+import { _resyncSelectValue, type MountEffectFn } from './attrs.ts'
 import { _materialize } from './materialize.ts'
 import { _mountDisposersStack } from './mount.ts'
 import type { ChildScope, ErrorHandler, Node, StructuralNode } from './types.ts'
@@ -232,7 +232,7 @@ function _reconcileWhen(
 ): void {
   const par = anc.parentNode as Element | ShadowRoot
   if (!cond[0]()) {
-    st.c && (_teardownChildScope(st.c), (st.c = null))
+    st.c && (_teardownChildScope(st.c), (st.c = null), _resyncSelectValue(par))
     return
   }
   if (st.c) return
@@ -256,6 +256,8 @@ function _reconcileWhen(
     _abortChild(cd, ca, par)
     throw err
   }
+  // Options grown inside a <select> (or <optgroup>): re-select the bound value (#8).
+  _resyncSelectValue(par)
 }
 
 function _reconcileEach(
@@ -414,6 +416,9 @@ function _reconcileEach(
     s.pos = i
     ref = last.nextSibling
   }
+  // Rows added, removed or re-grown (FEL-395 same-key re-grow removes the
+  // selected <option>) inside a <select>: re-select the bound value (#8).
+  _resyncSelectValue(par)
 }
 
 /**
