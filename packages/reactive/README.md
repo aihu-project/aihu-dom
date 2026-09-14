@@ -72,7 +72,7 @@ npm install @aihu/reactive
 bun add @aihu/reactive
 ```
 
-<sub><i>Auto-generated against `@aihu/reactive@0.2.0`.</i></sub>
+<sub><i>Auto-generated against `@aihu/reactive@0.2.2`.</i></sub>
 
 <!-- END_AUTOGEN: install -->
 
@@ -83,13 +83,13 @@ bun add @aihu/reactive
 
 | | |
 |---|---|
-| **Version** | `0.2.0` |
+| **Version** | `0.2.2` |
 | **Tier** | G — State — fine-grained Proxy-backed deep reactive trees (lazy per-key nodes, plain-assignment writes) |
 | **Bundle size** | 1.28 kB (gz) — limit 1900 B |
 | **Published files** | 3 entries |
 | **License** | MIT |
 
-<sub><i>Auto-generated against `@aihu/reactive@0.2.0`.</i></sub>
+<sub><i>Auto-generated against `@aihu/reactive@0.2.2`.</i></sub>
 
 <!-- END_AUTOGEN: stats -->
 
@@ -103,7 +103,7 @@ bun add @aihu/reactive
 | `.` | `./dist/index.js` | `—` |
 | `./helpers` | `./dist/helpers.js` | `—` |
 
-<sub><i>Auto-generated against `@aihu/reactive@0.2.0`.</i></sub>
+<sub><i>Auto-generated against `@aihu/reactive@0.2.2`.</i></sub>
 
 <!-- END_AUTOGEN: exports -->
 
@@ -114,9 +114,9 @@ bun add @aihu/reactive
 
 **Dependencies:**
 
-- `@aihu/signals` — `workspace:*`
+- `@aihu/signals` — `^0.5.2`
 
-<sub><i>Auto-generated against `@aihu/reactive@0.2.0`.</i></sub>
+<sub><i>Auto-generated against `@aihu/reactive@0.2.2`.</i></sub>
 
 <!-- END_AUTOGEN: deps -->
 
@@ -129,7 +129,7 @@ bun add @aihu/reactive
 - [@aihu/store](../store)
 - [Aihu framework root](../../README.md)
 
-<sub><i>Auto-generated against `@aihu/reactive@0.2.0`.</i></sub>
+<sub><i>Auto-generated against `@aihu/reactive@0.2.2`.</i></sub>
 
 <!-- END_AUTOGEN: see-also -->
 
@@ -140,6 +140,6 @@ bun add @aihu/reactive
 
 MIT — see [LICENSE](../../LICENSE).
 
-<sub><i>Auto-generated against `@aihu/reactive@0.2.0`.</i></sub>
+<sub><i>Auto-generated against `@aihu/reactive@0.2.2`.</i></sub>
 
 <!-- END_AUTOGEN: license -->

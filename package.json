@@ -21,7 +21,11 @@
     "check:artifact": "node scripts/smoke-packed-artifacts.mjs",
     "verify:pack": "node scripts/verify-pack.mjs",
     "consumer:smoke": "node scripts/consumer-smoke.mjs",
-    "test:release-contract": "node scripts/release-contract-regression.mjs"
+    "test:artifacts": "node scripts/all-package-artifacts.mjs",
+    "test:pack-contract": "node scripts/pack-contract-regression.mjs",
+    "test:oidc-auth": "node scripts/oidc-auth-regression.mjs",
+    "test:release-contract": "node scripts/release-contract-regression.mjs",
+    "test:version-set": "node scripts/assert-version-set.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.14",

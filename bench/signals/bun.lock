@@ -5,7 +5,7 @@
     "": {
       "name": "@aihu/bench-signals",
       "dependencies": {
-        "@aihu/signals": "^0.5.0",
+        "@aihu/signals": "^0.5.2",
         "@preact/signals-core": "1.14.1",
         "@vue/reactivity": "3.5.33",
         "alien-signals": "3.1.2",
@@ -21,7 +21,7 @@
     },
   },
   "packages": {
-    "@aihu/signals": ["@aihu/signals@0.5.1", "", {}, "sha512-lUJmxLIW5mCWHibv/XYg3Rh/SG4qrF/83JuWtfU2XZTnlrxsN+l+IIx3OO/wAZLGRibJVd6Q55LVu7dkkj1cdw=="],
+    "@aihu/signals": ["@aihu/signals@0.5.2", "", {}, "sha512-46x+Ys19SJX/Rtf7W1EjlSz7YuEn4IZhqCvV9q7MTipliig/aEmKXFMEB+foi78+kBFC3aapa+Sjqc4a2QJU+w=="],
 
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.24.2", "", { "os": "aix", "cpu": "ppc64" }, "sha512-thpVCb/rhxE/BnMLQ7GReQLLN8q9qbHmI55F4489/ByVg2aQaQ6kbcLb6FHkocZzQhxc4gx0sCk0tJkKBFzDhA=="],
 
