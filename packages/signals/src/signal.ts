@@ -493,6 +493,28 @@ export interface SignalOptions<T> {
   equals?: ((a: T, b: T) => boolean) | false
 }
 
+/**
+ * `null`/`undefined`/`[]` initial values give the sole general overload
+ * nothing to infer `T` from, so it locks in `Signal<null>` /
+ * `Signal<undefined>` / `Signal<never[]>` — types that reject the very
+ * values callers write moments later. These overloads default `T` to
+ * `unknown` (or `unknown[]`) instead, so the un-annotated form stays
+ * usable and an explicit `signal<Doc | null>(null)` / `signal<Doc[]>([])`
+ * still narrows exactly as before.
+ */
+export function signal<T = unknown>(
+  initial: null,
+  options?: SignalOptions<T | null>,
+): Signal<T | null>
+export function signal<T = unknown>(
+  initial: undefined,
+  options?: SignalOptions<T | undefined>,
+): Signal<T | undefined>
+export function signal<T = unknown[]>(
+  initial: T extends readonly unknown[] ? readonly [] : never,
+  options?: SignalOptions<T>,
+): Signal<T>
+export function signal<T>(initial: T, options?: SignalOptions<T>): Signal<T>
 export function signal<T>(initial: T, options?: SignalOptions<T>): Signal<T> {
   let value = initial
   // Linked-list host: the signal-as-dep needs subsHead/subsTail. We
