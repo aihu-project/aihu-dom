@@ -64,8 +64,10 @@ Materializes `node` into `host` (an `Element` or `ShadowRoot`) synchronously. By
 ```ts
 const scope = mount(tree, document.querySelector('#app')!)
 scope.dispose()         // synchronous teardown, idempotent
-scope.agent             // sub-project #7 stub (don't use in v0)
-scope.serialize()       // throws ArborNotImplementedError in v0
+scope.agent             // AgentContext — live when the component has an agent
+                        // binding, otherwise a frozen no-op sentinel
+scope.serialize()       // returns a flat, path-keyed Record<string, unknown>
+                        // snapshot of every reactive binding's current value
 ```
 
 ## Attribute semantics
@@ -93,15 +95,39 @@ b.dispose()   // tears down b's effects then removes its roots
 a.dispose()   // independent
 ```
 
-## Coming in v1 (today: stubs that throw)
+## Structural reconciliation: `when()` / `each()`
+
+The v1 reconciler has shipped — `when()` and `each()` are live, not stubs:
 
 ```ts
 import { when, each } from '@aihu/arbor'
-when(condition, () => branch(...))                     // ArborNotImplementedError in v0
-each(list, item => item.id, item => branch(...))      // ArborNotImplementedError in v0
+
+when(isOpen, () => branch('div', null, [leaf('open')]))
+
+each(
+  rows,                          // Signal<T[]>
+  (item) => item.id,             // key
+  (item, index) => branch('li', null, [leaf(item.name)]),
+)
 ```
 
-The signatures are locked; the v1 reconciler will swap the bodies.
+`each()` keys rows by identity: a surviving key keeps its DOM/effects, but a
+row is only refreshed when the *item reference* passed to `grow` changes too
+(a same-key, new-reference item re-grows; a same-reference item is reused
+as-is even if you mutated it — see the source doc comment on `each()` for the
+identity-vs-freshness contract and the reorder algorithm).
+
+## `slot()` — Shadow DOM content projection
+
+```ts
+import { slot } from '@aihu/arbor'
+
+slot()            // <slot> — default slot
+slot('header')    // <slot name="header"> — named slot
+```
+
+A terminal leaf, like `leaf.element()`; Shadow DOM handles the actual
+projection natively.
 
 ## Pairing with non-`@aihu/signals` reactive systems
 
