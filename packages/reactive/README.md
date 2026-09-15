@@ -15,7 +15,7 @@ tuples). Built entirely on the public `@aihu/signals` API — `@aihu/signals`
 is `external`, so this package adds **zero bytes** to the signals core row.
 
 ```ts
-import { reactive, mutate, unwrap } from '@aihu/reactive'
+import { isReactive, reactive, mutate, unwrap } from '@aihu/reactive'
 import { computed, effect } from '@aihu/signals'
 
 const user = reactive({ name: 'Ada', address: { city: 'London' }, tags: ['math'] })
@@ -35,6 +35,9 @@ const initials = computed(() => user.name.split(' ').map((s) => s[0]).join(''))
 // initials does NOT recompute when address.city changes.
 
 localStorage.setItem('user', JSON.stringify(unwrap(user)))
+
+isReactive(user)        // true
+isReactive(unwrap(user)) // false — the raw object is not a proxy
 ```
 
 `reconcile(target, next, { key? })` merges a fresh payload (e.g. a hydration
