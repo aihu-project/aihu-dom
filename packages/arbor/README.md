@@ -9,7 +9,7 @@ Part of the **runtime core** layer of the Aihu meta-framework. Shipped to the cl
 <!-- BEGIN_HANDWRITTEN: prose -->
 DOM materialization primitives for the [aihu](../../README.md) project. Build a tree of `branch` / `leaf` nodes, hand it to `mount`, and the renderer wires every reactive binding once and tears it down LIFO when the scope disposes. No JSX runtime, no virtual DOM, no scheduler queue — just direct DOM operations against the live nodes.
 
-**Status:** v0 surface frozen (Phase 3). Spec: [`.team/phase-3/spec-arbor.md`](../../.team/phase-3/spec-arbor.md). Bundle ≤ 2 kB gzipped.
+**Status:** v0 surface frozen (Phase 3). Bundle ≤ 2 kB gzipped.
 
 ## Hello mount
 
@@ -80,7 +80,7 @@ Inside `attrs`, each `[key, value]` pair is dispatched at mount time:
 | `Array.isArray(value)` (a Signal tuple `[Read, Write]`) | Wired through an effect — the DOM property/attribute tracks the signal. |
 | `string` / `number` / `boolean` | Static. Set once at mount; never re-applied. |
 
-Property vs attribute split: if `key in el` (e.g. `disabled`, `value`, `className`), the value is set as a DOM property; otherwise `setAttribute(key, String(value))`. See [`.team/phase-3/spec-arbor.md`](../../.team/phase-3/spec-arbor.md) §2.4.
+Property vs attribute split: if `key in el` (e.g. `disabled`, `value`, `className`), the value is set as a DOM property; otherwise `setAttribute(key, String(value))`.
 
 > **Trust boundary.** `attrs` is the renderer's trust boundary. The compiler is responsible for never emitting attacker-controllable keys. If you call `branch()` / `leaf.element()` from hand-written code with user-controlled data, **do not** let user data flow into attribute *keys* — keys like `innerHTML`, `srcdoc`, `outerHTML` are real DOM properties and the runtime will assign them directly. Allow-list known-safe keys at your boundary.
 
@@ -131,7 +131,7 @@ projection natively.
 
 ## Pairing with non-`@aihu/signals` reactive systems
 
-Arbor only requires the signal shape: a tuple `readonly [Read<T>, Write<T>]` where `Read<T> = () => T`. Anything that exposes that shape works. The runtime detects it via `Array.isArray(value)` (per the [Deviation #11 invariant](../../.team/phase-3/spec-arbor.md)).
+Arbor only requires the signal shape: a tuple `readonly [Read<T>, Write<T>]` where `Read<T> = () => T`. Anything that exposes that shape works. The runtime detects it via `Array.isArray(value)` (the Deviation #11 invariant).
 
 ## Tests
 
@@ -207,10 +207,8 @@ bun add @aihu/arbor
 <!-- BEGIN_AUTOGEN: see-also -->
 <!-- regenerate: bun scripts/sync-readme.ts (also runs in pre-commit + CI) -->
 
-- [Phase 3 spec (arbor)](../../.team/phase-3/spec-arbor.md)
 - [bench/arbor](../../bench/arbor/RESULTS.md)
 - [@aihu/signals](../signals)
-- [@aihu/runtime](../runtime)
 - [Aihu framework root](../../README.md)
 
 <sub><i>Auto-generated against `@aihu/arbor@4.1.3`.</i></sub>

@@ -6,8 +6,6 @@ Fine-grained Proxy-backed deep reactive trees on aihu signals — lazy per-(obje
 
 
 <!-- BEGIN_HANDWRITTEN: prose -->
-Design: [`docs/plans/2026-07-24-deep-reactivity.md`](../../docs/plans/2026-07-24-deep-reactivity.md).
-
 A Solid-shaped node model (lazily allocated per-`(object, key)` tracking cells,
 allocated on first proxy touch — tracked or not) with Vue-shaped write
 ergonomics (plain `obj.key = value` assignment, no `setStore(...)` path
@@ -129,7 +127,6 @@ bun add @aihu/reactive
 <!-- regenerate: bun scripts/sync-readme.ts (also runs in pre-commit + CI) -->
 
 - [@aihu/signals](../signals)
-- [@aihu/store](../store)
 - [Aihu framework root](../../README.md)
 
 <sub><i>Auto-generated against `@aihu/reactive@0.2.2`.</i></sub>

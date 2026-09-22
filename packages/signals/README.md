@@ -103,12 +103,12 @@ setFn(() => 6)            // ❌ TypeScript error
 setFn(() => () => 6)      // ✅ stores the function
 ```
 
-The runtime disambiguates `value` vs `updater` by `typeof === 'function'`, so a raw function is unambiguous *only* via the updater form. Mirrors SolidJS's `Setter<T>`. Detail: [`.team/phase-2/spec-signals-write-of-functions.md`](../../.team/phase-2/spec-signals-write-of-functions.md).
+The runtime disambiguates `value` vs `updater` by `typeof === 'function'`, so a raw function is unambiguous *only* via the updater form. Mirrors SolidJS's `Setter<T>`.
 
 ## v0 limitations
 
 - **Cycle errors carry no chain context.** `SignalCircularError` is thrown synchronously from the writer; richer chain info lands with devtools.
-- **No `peek` / `onCleanup`.** Single-purpose primitives only; arbor's higher-level scopes live in `@aihu/arbor`.
+- **No `peek`.** `onCleanup`-style disposal registration is available via `onScopeDispose()`, paired with `effectScope()` / `runWithScope()` / `runWithoutScope()` / `getCurrentScope()` — all exported from this package (see `src/scope.ts`).
 - **Batch cascade cap.** `batch()` re-iterates up to 100 times before throwing `SignalCircularError`. The cap is internal; if tooling needs to sanity-check legitimate cascade depth in the future, we'll re-export it.
 <!-- END_HANDWRITTEN: prose -->
 
@@ -163,7 +163,7 @@ bun add @aihu/signals
 <!-- BEGIN_AUTOGEN: deps -->
 <!-- regenerate: bun scripts/sync-readme.ts (also runs in pre-commit + CI) -->
 
-_Zero runtime dependencies_ (per the [dep-free thesis](../../README.md#project-posture))_._
+_Zero runtime dependencies_ (per the [dep-free thesis](../../README.md))_._
 
 <sub><i>Auto-generated against `@aihu/signals@0.5.2`.</i></sub>
 
@@ -186,7 +186,6 @@ Client-side usage (browser custom elements, arbor mounts) is unaffected — each
 <!-- BEGIN_AUTOGEN: see-also -->
 <!-- regenerate: bun scripts/sync-readme.ts (also runs in pre-commit + CI) -->
 
-- [Phase 2 spec (signals)](../../.team/phase-2/spec-signals.md)
 - [bench/signals](../../bench/signals/RESULTS.md)
 - [@aihu/arbor](../arbor)
 - [Aihu framework root](../../README.md)
