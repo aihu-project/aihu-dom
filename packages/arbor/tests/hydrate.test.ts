@@ -13,7 +13,7 @@
 import { signal } from '@aihu/signals'
 import { describe, expect, it } from 'vitest'
 import { _ROOT_PATH, hydrate } from '../src/hydrate.ts'
-import { branch, leaf } from '../src/index.ts'
+import { branch, each, leaf } from '../src/index.ts'
 import { mount } from '../src/mount.ts'
 
 // ---------------------------------------------------------------------------
@@ -96,6 +96,45 @@ describe('MountScope.serialize() — Plan 3.2', () => {
 // ---------------------------------------------------------------------------
 
 describe('hydrate() — happy path', () => {
+  it('passes item indices to keyFn while adopting a server-rendered list', () => {
+    const host = document.createElement('div')
+    const listPath = `${_ROOT_PATH}.0`
+    const marker = listPath.replace(/-/g, '_')
+    const ul = document.createElement('ul')
+    ul.setAttribute('data-aihu-path', _ROOT_PATH)
+    ul.append(
+      document.createComment(`aihu:s:${marker}`),
+      Object.assign(document.createElement('li'), {
+        textContent: 'a',
+      }),
+      document.createComment(`aihu:/s:${marker}`),
+    )
+    ul.children[0]?.setAttribute('data-aihu-path', `${listPath}.list.0`)
+    host.appendChild(ul)
+    const items = signal(['a'])
+    const indexes: number[] = []
+
+    const scope = hydrate(
+      () =>
+        branch('ul', undefined, [
+          each(
+            items,
+            (_item, index) => {
+              indexes.push(index)
+              return index
+            },
+            (item) => branch('li', undefined, [leaf(item)]),
+          ),
+        ]),
+      host,
+      {},
+    )
+
+    expect(indexes).toContain(0)
+    expect(Array.from(ul.querySelectorAll('li'), (li) => li.textContent)).toEqual(['a'])
+    scope.dispose()
+  })
+
   it('T2a: hydrate attaches reactive text without changing innerHTML', () => {
     // Set up a pre-rendered host (simulating SSR output).
     // The <p> is the root branch, so it gets the root path `_ROOT_PATH`.

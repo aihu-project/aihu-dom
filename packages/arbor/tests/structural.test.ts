@@ -419,6 +419,41 @@ describe('each() — item grow() throw mid-reconcile does not leak anchor/dispos
 })
 
 describe('each() — list rendering', () => {
+  it('passes each item index to keyFn and reconciles index-keyed rows', () => {
+    const host = document.createElement('div')
+    const [getItems, setItems] = signal(['a', 'b', 'c'])
+    const itemsSig: ReturnType<typeof signal<string[]>> = [getItems, setItems]
+    const keyCalls: Array<[string, number]> = []
+
+    const scope = mount(
+      branch('ul', undefined, [
+        each(
+          itemsSig,
+          (item, index) => {
+            keyCalls.push([item, index])
+            return index
+          },
+          (item) => branch('li', undefined, [leaf(item)]),
+        ),
+      ]),
+      host,
+    )
+
+    expect(keyCalls).toContainEqual(['a', 0])
+    expect(keyCalls).toContainEqual(['b', 1])
+    expect(keyCalls).toContainEqual(['c', 2])
+    expect(Array.from(host.querySelectorAll('li'), (li) => li.textContent)).toEqual(['a', 'b', 'c'])
+
+    setItems(['c', 'b', 'a'])
+    expect(Array.from(host.querySelectorAll('li'), (li) => li.textContent)).toEqual(['c', 'b', 'a'])
+
+    setItems(['c', 'a'])
+    expect(Array.from(host.querySelectorAll('li'), (li) => li.textContent)).toEqual(['c', 'a'])
+    expect(keyCalls).toContainEqual(['a', 1])
+
+    scope.dispose()
+  })
+
   it('T4: initial list renders correct elements in order', () => {
     const host = document.createElement('div')
     const items = signal(['a', 'b', 'c'])
