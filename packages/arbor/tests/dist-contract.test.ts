@@ -66,7 +66,9 @@ describe('@aihu/arbor dist — node wire format', () => {
     expect(node.structuralKind).toBe('list')
     expect(typeof node.listGrow).toBe('function')
     expect(typeof node.keyFn).toBe('function')
-    expect((node.keyFn as (item: { id: string }, index: number) => string)({ id: 'a' }, 3)).toBe('a:3')
+    expect((node.keyFn as (item: { id: string }, index: number) => string)({ id: 'a' }, 3)).toBe(
+      'a:3',
+    )
     expect(node.list).toBeDefined()
   })
 
