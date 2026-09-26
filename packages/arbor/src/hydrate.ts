@@ -672,7 +672,7 @@ function _adoptStructural(
       return null
     }
     for (let i = 0; i < items.length; i++) {
-      const k = kfn(items[i])
+      const k = kfn(items[i], i)
       // Duplicate keys collapse to one scope in the reconciler; adopt the
       // first occurrence only, matching that collapse.
       if (sc.has(k)) continue

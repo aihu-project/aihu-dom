@@ -2,7 +2,7 @@ import type { Dispose, Signal } from '@aihu/signals'
 import { _resyncSelectValue, type MountEffectFn } from './attrs.ts'
 import { _materialize } from './materialize.ts'
 import { _mountDisposersStack } from './mount.ts'
-import type { ChildScope, ErrorHandler, Node, StructuralNode } from './types.ts'
+import type { ChildScope, ErrorHandler, KeyFn, Node, StructuralNode } from './types.ts'
 
 /**
  * `when()` and `each()` — v1 reconciler per spec §2 (Plan 1.1).
@@ -99,7 +99,7 @@ export function when(condition: Signal<boolean>, grow: () => Node): StructuralNo
  */
 export function each<T>(
   list: Signal<T[]>,
-  key: (item: T) => string | number,
+  key: KeyFn<T>,
   grow: (item: T, index: number) => Node,
 ): StructuralNode {
   return {
@@ -108,7 +108,7 @@ export function each<T>(
     condition: null,
     grow: null,
     list: list as Signal<unknown[]>,
-    keyFn: key as (item: unknown) => string | number,
+    keyFn: key as KeyFn<unknown>,
     listGrow: grow as (item: unknown, index: number) => Node,
   }
 }
@@ -262,7 +262,7 @@ function _reconcileWhen(
 
 function _reconcileEach(
   list: Signal<unknown[]>,
-  kfn: (i: unknown) => string | number,
+  kfn: KeyFn<unknown>,
   lgrow: (i: unknown, idx: number) => Node,
   anc: Comment,
   pb: string,
@@ -273,7 +273,7 @@ function _reconcileEach(
   const items = list[0]()
   const n = items.length
   const ks = new Set<string | number>()
-  for (let i = 0; i < n; i++) ks.add(kfn(items[i]))
+  for (let i = 0; i < n; i++) ks.add(kfn(items[i], i))
   const par = anc.parentNode as Element | ShadowRoot
   for (const [k, s] of sc)
     if (!ks.has(k)) {
@@ -298,7 +298,7 @@ function _reconcileEach(
   const sl: ChildScope[] = []
   const t: number[] = []
   for (let i = 0; i < n; i++) {
-    const k = kfn(items[i])
+    const k = kfn(items[i], i)
     let s = sc.get(k)
     // FEL-395: key unchanged does NOT mean the item is unchanged. Row bodies
     // are grown once from `items[i]` BY VALUE (compiler-emitted
@@ -451,7 +451,7 @@ export function _wireStructural(
     })
   } else {
     const ls = node.list as Signal<unknown[]>
-    const kf = node.keyFn as (i: unknown) => string | number
+    const kf = node.keyFn as KeyFn<unknown>
     const lg = node.listGrow as (i: unknown, idx: number) => Node
     mfn(disp, () => _reconcileEach(ls, kf, lg, anc, pb, mfn, eh, sc), `${pb}.list`, eh)
     disp.push(() => {

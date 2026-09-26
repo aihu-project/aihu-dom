@@ -58,7 +58,7 @@ describe('@aihu/arbor dist — node wire format', () => {
     const { each } = await load()
     const node = each(
       () => [{ id: 'a' }],
-      (i: { id: string }) => i.id,
+      (i: { id: string }, index: number) => `${i.id}:${index}`,
       (i: { id: string }) => ({ kind: 'leaf', leafKind: 'text', value: i.id }),
     )
 
@@ -66,6 +66,7 @@ describe('@aihu/arbor dist — node wire format', () => {
     expect(node.structuralKind).toBe('list')
     expect(typeof node.listGrow).toBe('function')
     expect(typeof node.keyFn).toBe('function')
+    expect((node.keyFn as (item: { id: string }, index: number) => string)({ id: 'a' }, 3)).toBe('a:3')
     expect(node.list).toBeDefined()
   })
 

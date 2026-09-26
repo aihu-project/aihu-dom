@@ -12,6 +12,8 @@ export type {
   ChildList,
   ErrorHandler,
   EventHandler,
+  Key,
+  KeyFn,
   Leaf,
   MountOptions,
   Node,

@@ -17,6 +17,12 @@ import type { Dispose, Signal } from '@aihu/signals'
  */
 export type EventHandler = (event: Event) => void
 
+/** Stable key returned by an `each()` key function. */
+export type Key = string | number
+
+/** Extracts a row key from its item and current list index. */
+export type KeyFn<T> = (item: T, index: number) => Key
+
 /**
  * Attribute map. Per spec §1.2 — value semantics at mount time:
  *
@@ -84,7 +90,7 @@ export interface StructuralNode {
   /** For 'list': the Signal<unknown[]> list. null on conditional nodes. */
   readonly list: Signal<unknown[]> | null
   /** For 'list': the key extractor function. null on conditional nodes. */
-  readonly keyFn: ((item: unknown) => string | number) | null
+  readonly keyFn: KeyFn<unknown> | null
   /** For 'list': the per-item grow function. null on conditional nodes. */
   readonly listGrow: ((item: unknown, index: number) => Node) | null
 }
