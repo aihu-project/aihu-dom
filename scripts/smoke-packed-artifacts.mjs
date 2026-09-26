@@ -17,6 +17,8 @@ function run(command, args, options = {}) {
 }
 
 try {
+  run('bun', ['run', 'build'], { cwd: root })
+
   const packages = ['signals', 'reactive', 'arbor', 'dom']
   const tarballPaths = packages.map((directory) => {
     const output = run('npm', ['pack', '--pack-destination', tarballs], {
