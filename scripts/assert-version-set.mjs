@@ -5,7 +5,7 @@ const root = resolve(import.meta.dirname, '..')
 const expected = {
   '@aihu/signals': '0.5.2',
   '@aihu/reactive': '0.2.2',
-  '@aihu/arbor': '4.1.4',
+  '@aihu/arbor': '4.2.0',
   '@aihu/dom': '0.1.2',
 }
 const directories = {
