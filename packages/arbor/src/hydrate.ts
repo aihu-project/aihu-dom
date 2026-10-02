@@ -31,7 +31,13 @@
 import { type Dispose, runWithoutScope, type Signal } from '@aihu/signals'
 import { _applyAttrs, _resyncSelectValue } from './attrs.ts'
 import { _materialize } from './materialize.ts'
-import { _makeScope, _mountDisposersStack, _mountEffect, type mount } from './mount.ts'
+import {
+  _makeScope,
+  _mountAfterRenderStack,
+  _mountDisposersStack,
+  _mountEffect,
+  type mount,
+} from './mount.ts'
 import { _wireStructural } from './structural.ts'
 import { _observeMount } from './telemetry.ts'
 import type {
@@ -786,6 +792,7 @@ export function hydrate(
   // seeding site, so it writes through `sig[1]` directly. An empty snapshot
   // seeds nothing — byte-identical behavior to the pre-seeding walker.
   const errorHandler = options?.onError
+  const lightDomChildren = options?.projectLightDomSlot ? Array.from(host.childNodes) : null
   // Build path→element map inline (per spec §5: `data-aihu-path` anchors).
   //
   // Nested-render boundary: a server render wrapped in its own host element
@@ -870,20 +877,27 @@ export function hydrate(
   // hydration wiring creates the same `_mountEffect` binding effects, so a
   // hydrate() re-entered while some component scope is current must not let
   // that scope adopt them (binding ownership is the MountScope, always).
-  runWithoutScope(() =>
-    _hydrateNode(
-      node,
-      host,
-      pathBase,
-      disposers,
-      signalRegistry,
-      pathMap,
-      errorHandler,
-      { i: 0 },
-      snapshot ?? {},
-      null,
-    ),
-  )
+  _mountAfterRenderStack.push(options?.onAfterRender)
+  try {
+    runWithoutScope(() =>
+      _hydrateNode(
+        node,
+        host,
+        pathBase,
+        disposers,
+        signalRegistry,
+        pathMap,
+        errorHandler,
+        { i: 0 },
+        snapshot ?? {},
+        null,
+      ),
+    )
+  } finally {
+    _mountAfterRenderStack.pop()
+  }
+
+  if (lightDomChildren !== null) options?.projectLightDomSlot?.(host, lightDomChildren)
 
   if (typeof __DEV__ !== 'undefined' && __DEV__)
     _observeMount({ kind: 'mount-end', path: 'hydrate', timestamp: Date.now() })
