@@ -171,6 +171,7 @@ function registerLiveBinding(binding: LiveBinding): void {
  * @internal
  */
 export const _mountDisposersStack: Array<Dispose[]> = []
+export const _mountAfterRenderStack: Array<(() => void) | undefined> = []
 
 /**
  * Counter for root-id assignment per spec §2.7. Increments per `mount()`
@@ -207,6 +208,7 @@ export function _mountEffect(
   path: string,
   errorHandler?: ErrorHandler,
 ): void {
+  const onAfterRender = _mountAfterRenderStack[_mountAfterRenderStack.length - 1]
   if (typeof __DEV__ !== 'undefined' && __DEV__)
     _observeMount({ kind: 'effect-create', path, timestamp: Date.now() })
   // R6a-arbor (investigation-arbor-restructure.md §Q3 Finding 2): the prior
@@ -225,11 +227,13 @@ export function _mountEffect(
   let selfDisposeNeeded = false
   let savedDispose: Dispose | null = null
   const dispose = effect(() => {
+    let didPatch = false
     if (typeof __DEV__ !== 'undefined' && __DEV__)
       _observeMount({ kind: 'effect-fire', path, timestamp: Date.now() })
     if (errorHandler) {
       try {
         fn()
+        didPatch = true
       } catch (err: unknown) {
         errorHandler(err, path)
         if (savedDispose) {
@@ -242,7 +246,9 @@ export function _mountEffect(
       }
     } else {
       fn()
+      didPatch = true
     }
+    if (didPatch && onAfterRender) queueMicrotask(onAfterRender)
   })
   savedDispose = dispose
   if (selfDisposeNeeded) {
@@ -350,6 +356,7 @@ export function mount(node: Node, host: Element | ShadowRoot, options?: MountOpt
   // finally pop covers both the success and catch paths; if errorHandler is
   // absent, the rethrow propagates through finally so the pop still runs.
   _mountDisposersStack.push(disposers)
+  _mountAfterRenderStack.push(options?.onAfterRender)
   try {
     // P0-2b (effect-scope plan §2): bindings are UNOWNED by any effect
     // scope — clear the current scope for the whole synchronous materialize,
@@ -382,6 +389,7 @@ export function mount(node: Node, host: Element | ShadowRoot, options?: MountOpt
       }
     })
   } finally {
+    _mountAfterRenderStack.pop()
     _mountDisposersStack.pop()
   }
 

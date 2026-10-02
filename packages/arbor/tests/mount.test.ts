@@ -14,6 +14,50 @@ import { _setMountObserver, type MountTelemetry } from '../src/telemetry.ts'
  */
 
 describe('mount() — Task 16 spec tests', () => {
+  it('onAfterRender observes initial and reactive patches after the DOM is committed', async () => {
+    const host = document.createElement('div')
+    const [getText, setText] = signal('first')
+    const observations: string[] = []
+    const scope = mount(branch('p', undefined, [leaf([getText, setText])]), host, {
+      onAfterRender: () => observations.push(host.textContent ?? ''),
+    })
+    expect(host.textContent).toBe('first')
+    await Promise.resolve()
+    expect(observations).toEqual(['first'])
+
+    setText('second')
+    expect(host.textContent).toBe('second')
+    await Promise.resolve()
+    expect(observations).toEqual(['first', 'second'])
+    scope.dispose()
+  })
+
+  it('keeps a live-region element identity across unrelated signal updates', () => {
+    const host = document.createElement('div')
+    const [getMessage, setMessage] = signal('Saving')
+    const [getUnrelated, setUnrelated] = signal('a')
+    const message: ReturnType<typeof signal<string>> = [getMessage, setMessage]
+    const unrelated: ReturnType<typeof signal<string>> = [getUnrelated, setUnrelated]
+    document.body.appendChild(host)
+    const scope = mount(
+      branch('section', { 'data-unrelated': unrelated as never }, [
+        branch('div', { 'aria-live': 'polite', id: 'status', tabindex: '-1' }, [leaf(message)]),
+      ]),
+      host,
+    )
+    const status = host.querySelector('#status') as HTMLElement | null
+    status?.focus()
+
+    setMessage('Saved')
+    setUnrelated('b')
+
+    expect(host.querySelector('#status')).toBe(status)
+    expect(status?.textContent).toBe('Saved')
+    expect(document.activeElement).toBe(status)
+    scope.dispose()
+    host.remove()
+  })
+
   it('returns a MountScope object with a dispose function (spec §4 Task 16 #1)', () => {
     const host = document.createElement('div')
     const scope = mount(branch('div'), host)

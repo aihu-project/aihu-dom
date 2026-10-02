@@ -183,6 +183,10 @@ export interface MountOptions {
    * never pass this option (zero overhead on the non-agent path).
    */
   agentBinding?: AgentBindingSpec
+  /** Called after each successful binding patch, including the initial render. */
+  onAfterRender?: () => void
+  /** Integration hook for projecting light-DOM host children after hydration. */
+  projectLightDomSlot?: (host: Element | ShadowRoot, children: ChildNode[]) => void
 }
 
 /**

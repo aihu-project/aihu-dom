@@ -238,6 +238,61 @@ describe('hydrate() — mismatch fallback', () => {
   })
 })
 
+describe('hydrate() — light DOM projection boundary', () => {
+  it('projects the host children captured before hydration after adopting the SSR tree', () => {
+    // This is the same hydratable shape emitted by the server: path markers
+    // identify the adopted template and the slot placeholder is in that tree.
+    const host = document.createElement('x-layout')
+    host.innerHTML = '<main data-aihu-path="0"><slot name="header"><b>fallback</b></slot></main>'
+    const originalChild = document.createElement('h1')
+    originalChild.slot = 'header'
+    originalChild.textContent = 'Title'
+    // Server-rendered host output has slot children alongside the template root.
+    host.insertBefore(originalChild, host.firstChild)
+    const serverHTML = host.outerHTML
+    const projected: Array<{ host: Element | ShadowRoot; children: ChildNode[] }> = []
+
+    const scope = hydrate(
+      () => branch('main', undefined, [leaf('')]),
+      host,
+      {},
+      {
+        projectLightDomSlot: (target, children) => {
+          projected.push({ host: target, children })
+          const slot = target.querySelector('slot[name="header"]')
+          const slotted = children.find((child) => child === originalChild)
+          if (slotted) slot?.replaceWith(slotted)
+        },
+      },
+    )
+
+    expect(serverHTML).toContain('data-aihu-path="0"')
+    expect(projected).toHaveLength(1)
+    expect(projected[0]?.host).toBe(host)
+    expect(projected[0]?.children).toContain(originalChild)
+    expect(host.querySelector('slot')).toBeNull()
+    expect(host.querySelectorAll('h1')).toHaveLength(1)
+    expect(host.querySelector('h1')?.parentElement?.tagName).toBe('MAIN')
+    scope.dispose()
+  })
+
+  it('leaves native Shadow DOM slots alone when no projection hook is supplied', () => {
+    const shadowHost = document.createElement('x-shadow')
+    const shadow = shadowHost.attachShadow({ mode: 'open' })
+    shadow.innerHTML =
+      '<main data-aihu-path="0"><slot data-aihu-path="0.0" name="header"></slot></main>'
+    const nativeSlot = shadow.querySelector('slot')
+    const scope = hydrate(
+      () => branch('main', undefined, [branch('slot', { name: 'header' })]),
+      shadow,
+      {},
+    )
+
+    expect(shadow.querySelector('slot')).toBe(nativeSlot)
+    scope.dispose()
+  })
+})
+
 // ---------------------------------------------------------------------------
 // T4: serialize → JSON.stringify → JSON.parse → hydrate round-trip
 // ---------------------------------------------------------------------------
