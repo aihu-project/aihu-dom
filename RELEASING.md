@@ -29,8 +29,8 @@ packages:
 | ---: | --- | --- | --- | --- |
 | 1 | `@aihu/signals` | `signals-v0.5.2` | `0.5.2` | none |
 | 2 | `@aihu/reactive` | `reactive-v0.2.2` | `0.2.2` | `@aihu/signals@0.5.2` |
-| 2 | `@aihu/arbor` | `arbor-v4.1.4` | `4.1.4` | `@aihu/signals@0.5.2` |
-| 3 | `@aihu/dom` | `dom-v0.1.2` | `0.1.2` | `@aihu/signals@0.5.2`, `@aihu/reactive@0.2.2`, and `@aihu/arbor@4.1.4` |
+| 2 | `@aihu/arbor` | `arbor-v4.2.0` | `4.2.0` | `@aihu/signals@0.5.2` |
+| 3 | `@aihu/dom` | `dom-v0.1.3` | `0.1.3` | `@aihu/signals@0.5.2`, `@aihu/reactive@0.2.2`, and `@aihu/arbor@4.2.0` |
 
 The release workflow enforces the registry prerequisite for every dependent,
 so Reactive and Arbor may be published in either order after Signals, while
