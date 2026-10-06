@@ -57,7 +57,7 @@ leaf.element('img', { src: '/logo.png' })
 leaf.element('hr')
 ```
 
-### `mount(node, host): MountScope`
+### `mount(node, host, options?): MountScope`
 
 Materializes `node` into `host` (an `Element` or `ShadowRoot`) synchronously. By the time `mount` returns, every reactive binding has run once and subscribed to its signal, every static attr is applied, and every DOM node is appended.
 
@@ -69,6 +69,29 @@ scope.agent             // AgentContext — live when the component has an agent
 scope.serialize()       // returns a flat, path-keyed Record<string, unknown>
                         // snapshot of every reactive binding's current value
 ```
+
+The optional third argument is a `MountOptions`:
+
+```ts
+mount(tree, host, {
+  onError: (err) => report(err),     // called instead of throwing on a binding error
+  onAfterRender: () => console.log('patched'), // runs after each completed DOM
+                                                 // patch, initial render included,
+                                                 // in commit order (microtask-deferred)
+})
+```
+
+### `hydrate(component, host, snapshot, options?): MountScope`
+
+Adopts a server-rendered `host` in place instead of building fresh DOM nodes — it wires reactive bindings onto the existing markup and pre-seeds writable signals from `snapshot` (the path-keyed record emitted by SSR, e.g. `window.__aihu_state__[tag]`, or a prior `MountScope.serialize()` result). Exported from the `@aihu/arbor/hydrate` subpath.
+
+```ts
+import { hydrate } from '@aihu/arbor/hydrate'
+
+hydrate(() => tree, this.shadowRoot ?? this, window.__aihu_state__[tag])
+```
+
+`MountOptions.projectLightDomSlot?: (host, children) => void` — when provided, `hydrate()` captures the host's original light-DOM children before adopting its template and invokes this hook afterward, so named-slot children survive top-level hydration. Native shadow-DOM slots are unaffected when the hook is omitted.
 
 ## Attribute semantics
 
@@ -153,7 +176,7 @@ npm install @aihu/arbor
 bun add @aihu/arbor
 ```
 
-<sub><i>Auto-generated against `@aihu/arbor@4.1.3`.</i></sub>
+<sub><i>Auto-generated against `@aihu/arbor@4.2.0`.</i></sub>
 
 <!-- END_AUTOGEN: install -->
 
@@ -164,13 +187,13 @@ bun add @aihu/arbor
 
 | | |
 |---|---|
-| **Version** | `4.1.3` |
+| **Version** | `4.2.0` |
 | **Tier** | A — Reactive runtime core — DOM materialization layer |
 | **Bundle size** | 3.10 kB (gz) — limit 3200 B |
 | **Published files** | 3 entries |
 | **License** | MIT |
 
-<sub><i>Auto-generated against `@aihu/arbor@4.1.3`.</i></sub>
+<sub><i>Auto-generated against `@aihu/arbor@4.2.0`.</i></sub>
 
 <!-- END_AUTOGEN: stats -->
 
@@ -185,7 +208,7 @@ bun add @aihu/arbor
 | `./hydrate` | `./dist/hydrate.js` | `—` |
 | `./progressive` | `./dist/progressive.js` | `—` |
 
-<sub><i>Auto-generated against `@aihu/arbor@4.1.3`.</i></sub>
+<sub><i>Auto-generated against `@aihu/arbor@4.2.0`.</i></sub>
 
 <!-- END_AUTOGEN: exports -->
 
@@ -198,7 +221,7 @@ bun add @aihu/arbor
 
 - `@aihu/signals` — `^0.5.2`
 
-<sub><i>Auto-generated against `@aihu/arbor@4.1.3`.</i></sub>
+<sub><i>Auto-generated against `@aihu/arbor@4.2.0`.</i></sub>
 
 <!-- END_AUTOGEN: deps -->
 
@@ -211,7 +234,7 @@ bun add @aihu/arbor
 - [@aihu/signals](../signals)
 - [Aihu framework root](../../README.md)
 
-<sub><i>Auto-generated against `@aihu/arbor@4.1.3`.</i></sub>
+<sub><i>Auto-generated against `@aihu/arbor@4.2.0`.</i></sub>
 
 <!-- END_AUTOGEN: see-also -->
 
@@ -222,6 +245,6 @@ bun add @aihu/arbor
 
 MIT — see [LICENSE](../../LICENSE).
 
-<sub><i>Auto-generated against `@aihu/arbor@4.1.3`.</i></sub>
+<sub><i>Auto-generated against `@aihu/arbor@4.2.0`.</i></sub>
 
 <!-- END_AUTOGEN: license -->
