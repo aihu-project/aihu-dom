@@ -18,5 +18,5 @@ Hydration and progressive rendering remain explicit subpaths:
 
 ```ts
 import { hydrate } from '@aihu/dom/hydrate'
-import { progressive } from '@aihu/dom/progressive'
+import { position } from '@aihu/dom/progressive'
 ```
